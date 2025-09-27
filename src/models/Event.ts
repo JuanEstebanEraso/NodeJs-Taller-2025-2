@@ -1,32 +1,32 @@
 import mongoose from "mongoose";
 
-export type EventStatus = 'abierto' | 'cerrado';
-export type ResultType = 'ganaLocal' | 'empate' | 'ganaVisitante';
+export type EventStatus = 'open' | 'closed';
+export type ResultType = 'home_win' | 'draw' | 'away_win';
 
 export interface EventOdds {
-    ganaLocal: number;
-    empate: number;
-    ganaVisitante: number;
+    home_win: number;
+    draw: number;
+    away_win: number;
 }
 
 export interface EventInput {
-    nombre: string;
-    estado: EventStatus;
-    opciones: EventOdds;
-    resultadoFinal?: ResultType;
+    name: string;
+    status: EventStatus;
+    odds: EventOdds;
+    final_result?: ResultType;
 }
 
 export interface EventDocument extends EventInput, mongoose.Document {}
 
 const eventSchema = new mongoose.Schema({
-    nombre: { type: String, required: true },
-    estado: { type: String, required: true, enum: ['abierto', 'cerrado'], default: 'abierto' },
-    opciones: {
-        ganaLocal: { type: Number, required: true },
-        empate: { type: Number, required: true },
-        ganaVisitante: { type: Number, required: true }
+    name: { type: String, required: true },
+    status: { type: String, required: true, enum: ['open', 'closed'], default: 'open' },
+    odds: {
+        home_win: { type: Number, required: true },
+        draw: { type: Number, required: true },
+        away_win: { type: Number, required: true }
     },
-    resultadoFinal: { type: String, enum: ['ganaLocal', 'empate', 'ganaVisitante'] }
+    final_result: { type: String, enum: ['home_win', 'draw', 'away_win'] }
 }, { collection: "Events" });
 
 export const EventModel = mongoose.model<EventDocument>("Event", eventSchema);

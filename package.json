@@ -1,7 +1,7 @@
 {
   "name": "nodejs-taller-backend",
   "version": "1.0.0",
-  "description": "Backend API RESTful con Node.js, TypeScript y MongoDB para gestión de usuarios, proyectos y tareas",
+  "description": "RESTful API Backend with Node.js, TypeScript and MongoDB for sports betting application",
   "main": "dist/index.js",
   "scripts": {
     "dev": "bun run --watch src/index.ts",
@@ -13,7 +13,7 @@
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix"
   },
-  "keywords": ["nodejs", "typescript", "mongodb", "jwt", "api", "rest"],
+  "keywords": ["nodejs", "typescript", "mongodb", "jwt", "api", "rest", "sports", "betting"],
   "author": "Carlos Felipe",
   "license": "MIT",
   "dependencies": {

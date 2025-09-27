@@ -9,7 +9,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 
-// Rutas temporal para probar los modelos (Solo para probar)
+// Routes for testing models (Testing only)
 app.get('/test-models', async (req, res) => {
     try {
         const { UserModel } = await import('./models/User');
@@ -17,15 +17,15 @@ app.get('/test-models', async (req, res) => {
         const { BetModel } = await import('./models/Bet');
         
         res.json({
-            message: 'Modelos cargados correctamente',
+            message: 'Models loaded successfully',
             models: ['User', 'Event', 'Bet']
         });
     } catch (error) {
-        res.status(500).json({ error: 'Error cargando modelos', details: error });
+        res.status(500).json({ error: 'Error loading models', details: error });
     }
 });
 
-// Ruta para crear la BD y colecciones (solo para probar)
+// Route to create DB and collections (testing only)
 app.get('/create-db', async (req, res) => {
     try {
         const { UserModel } = await import('./models/User');
@@ -33,22 +33,22 @@ app.get('/create-db', async (req, res) => {
         const adminUser = await UserModel.create({
             username: 'admin',
             password: '123456',
-            saldo: 0,
+            balance: 0,
             role: 'admin'
         });
         
         res.json({
-            message: 'Base de datos y colecciones creadas!',
+            message: 'Database and collections created!',
             admin: adminUser
         });
     } catch (error) {
-        res.status(500).json({ error: 'Error creando BD', details: error });
+        res.status(500).json({ error: 'Error creating DB', details: error });
     }
 });
 
 db.then(() => {
     app.listen(port, () => {
         console.log(`Server running on port ${port}`);
-        console.log(`API de Apuestas Deportivas iniciada`);
+        console.log(`Sports Betting API started`);
     });
 });
