@@ -10,6 +10,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:functional": "jest tests/unit/utils/validation.test.ts tests/unit/business-logic.test.ts tests/unit/services/auth.service.test.ts tests/unit/services/user.service.test.ts tests/unit/services/event.service.test.ts tests/unit/services/bet.service.test.ts tests/unit/middleware/auth.middleware.test.ts tests/unit/controllers/user.controller.test.ts tests/unit/controllers/event.controller.test.ts tests/unit/controllers/bet.controller.test.ts tests/unit/models/user.model.test.ts tests/unit/models/event.model.test.ts tests/unit/models/bet.model.test.ts",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix"
   },
