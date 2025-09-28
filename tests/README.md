@@ -18,7 +18,7 @@ bun run test:coverage
 
 ## Cobertura de Código
 
-### Cobertura Actual Alcanzada
+### Cobertura Actual Alcanzada: **89.24%**
 
 #### **Controllers** - 85.71% de cobertura
 - **bet.controller.ts**: 97.5%
