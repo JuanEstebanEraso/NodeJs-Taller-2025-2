@@ -1,5 +1,8 @@
 import express, { Express } from "express";
 import { db } from "./lib/connectionDB";
+import userRoutes from "./routes/userRoutes";
+import eventRoutes from "./routes/eventRoutes";
+import betRoutes from "./routes/betRoutes";
 
 const app: Express = express();
 
@@ -7,6 +10,11 @@ const port: number = 3000;
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+// API Routes
+app.use('/api/users', userRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/bets', betRoutes);
 
 
 // Routes for testing models (Testing only)
