@@ -1,3 +1,3 @@
-export { UserController } from './UserController';
-export { EventController } from './EventController';
-export { BetController } from './BetController';
+export { UserController } from './user.controller';
+export { EventController } from './event.controller';
+export { BetController } from './bet.controller';

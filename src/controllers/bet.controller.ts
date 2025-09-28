@@ -1,16 +1,25 @@
 import { Request, Response } from 'express';
-import { BetService } from '../services/BetService';
+import { BetService } from '../services/bet.service';
 
 export class BetController {
   // Create a new bet
   static async createBet(req: Request, res: Response) {
     try {
-      const { user_id, event_id, chosen_option, amount } = req.body;
+      const userId = req.user?.id;
       
-      if (!user_id || !event_id || !chosen_option || !amount) {
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'User not authenticated'
+        });
+      }
+
+      const { event_id, chosen_option, amount } = req.body;
+      
+      if (!event_id || !chosen_option || !amount) {
         return res.status(400).json({
           success: false,
-          message: 'All fields are required (user_id, event_id, chosen_option, amount)'
+          message: 'Event ID, chosen option, and amount are required'
         });
       }
 
@@ -29,7 +38,7 @@ export class BetController {
       }
 
       const betData = {
-        user_id,
+        user_id: userId,
         event_id,
         chosen_option,
         amount,
@@ -55,7 +64,15 @@ export class BetController {
   // Get user's betting history
   static async getUserBets(req: Request, res: Response) {
     try {
-      const { userId } = req.params;
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'User not authenticated'
+        });
+      }
+
       const bets = await BetService.getUserBets(userId);
       
       return res.status(200).json({
@@ -93,7 +110,15 @@ export class BetController {
   // Get user's betting statistics
   static async getUserBetStats(req: Request, res: Response) {
     try {
-      const { userId } = req.params;
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'User not authenticated'
+        });
+      }
+
       const stats = await BetService.getUserBetStats(userId);
       
       return res.status(200).json({

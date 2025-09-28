@@ -1,8 +1,107 @@
 import { Request, Response } from 'express';
-import { UserService } from '../services/UserService';
+import { UserService } from '../services/user.service';
+import { AuthService } from '../services/auth.service';
+import { 
+  RegisterRequest, 
+  LoginRequest, 
+  AuthResponse,
+  ApiResponse 
+} from '../interfaces';
 
 export class UserController {
-  // Create a new user
+  // Register new user
+  static async register(req: Request, res: Response) {
+    try {
+      const registerData: RegisterRequest = req.body;
+      
+      if (!registerData.username || !registerData.password) {
+        return res.status(400).json({
+          success: false,
+          message: 'Username and password are required'
+        });
+      }
+
+      const result: AuthResponse = await AuthService.register(registerData);
+      
+      return res.status(201).json({
+        success: true,
+        data: result,
+        message: 'User registered successfully'
+      });
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: error instanceof Error ? error.message : 'Registration failed'
+      });
+    }
+  }
+
+  // Login user
+  static async login(req: Request, res: Response) {
+    try {
+      const loginData: LoginRequest = req.body;
+      
+      if (!loginData.username || !loginData.password) {
+        return res.status(400).json({
+          success: false,
+          message: 'Username and password are required'
+        });
+      }
+
+      const result: AuthResponse = await AuthService.login(loginData);
+      
+      return res.status(200).json({
+        success: true,
+        data: result,
+        message: 'Login successful'
+      });
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        message: error instanceof Error ? error.message : 'Login failed'
+      });
+    }
+  }
+
+  // Get current user profile
+  static async getProfile(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'User not authenticated'
+        });
+      }
+
+      const user = await UserService.getUserById(userId);
+      
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          id: user._id,
+          username: user.username,
+          role: user.role,
+          balance: user.balance
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error instanceof Error ? error.message : 'Error fetching profile'
+      });
+    }
+  }
+
+  // Create a new user (admin only)
   static async createUser(req: Request, res: Response) {
     try {
       const { username, password, balance, role } = req.body;

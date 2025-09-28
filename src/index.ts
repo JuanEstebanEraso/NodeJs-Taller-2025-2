@@ -1,8 +1,8 @@
 import express, { Express } from "express";
 import { db } from "./lib/connectionDB";
-import userRoutes from "./routes/userRoutes";
-import eventRoutes from "./routes/eventRoutes";
-import betRoutes from "./routes/betRoutes";
+import userRoutes from "./routes/user.routes";
+import eventRoutes from "./routes/event.routes";
+import betRoutes from "./routes/bet.routes";
 
 const app: Express = express();
 

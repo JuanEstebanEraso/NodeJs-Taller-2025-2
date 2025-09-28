@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { EventService } from '../services/EventService';
+import { EventService } from '../services/event.service';
 
 export class EventController {
   // Create a new event

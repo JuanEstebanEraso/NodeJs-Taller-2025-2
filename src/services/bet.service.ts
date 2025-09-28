@@ -1,6 +1,6 @@
 import { BetModel, BetInput, BetStatus } from '../models/Bet';
-import { UserService } from './UserService';
-import { EventService } from './EventService';
+import { UserService } from './user.service';
+import { EventService } from './event.service';
 
 export class BetService {
   // Creates a bet validating balance and event status
