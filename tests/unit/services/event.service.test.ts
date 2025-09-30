@@ -95,7 +95,15 @@ describe('EventService (Simplified)', () => {
     });
   });
 
-  describe('closeEvent', () => {
+  describe('closeEvent (instance method)', () => {
+    let eventService: any;
+
+    beforeEach(() => {
+      // Create instance for testing instance methods
+      const { EventService } = require('../../../src/services/event.service');
+      eventService = new EventService();
+    });
+
     it('should close event and set final result successfully', async () => {
       const eventId = 'event123';
       const finalResult = 'home_win';
@@ -108,7 +116,7 @@ describe('EventService (Simplified)', () => {
 
       mockEventModel.findByIdAndUpdate.mockResolvedValue(updatedEvent as any);
 
-      const result = await EventService.closeEvent(eventId, finalResult as any);
+      const result = await eventService.closeEvent(eventId, finalResult as any);
 
       expect(mockEventModel.findByIdAndUpdate).toHaveBeenCalledWith(
         eventId,
@@ -127,7 +135,7 @@ describe('EventService (Simplified)', () => {
 
       mockEventModel.findByIdAndUpdate.mockResolvedValue(null);
 
-      const result = await EventService.closeEvent(eventId, finalResult as any);
+      const result = await eventService.closeEvent(eventId, finalResult as any);
 
       expect(result).toBeNull();
     });
@@ -138,7 +146,7 @@ describe('EventService (Simplified)', () => {
 
       mockEventModel.findByIdAndUpdate.mockRejectedValue(new Error('Database error'));
 
-      await expect(EventService.closeEvent(eventId, finalResult as any)).rejects.toThrow('Error closing event');
+      await expect(eventService.closeEvent(eventId, finalResult as any)).rejects.toThrow('Error closing event');
     });
   });
 

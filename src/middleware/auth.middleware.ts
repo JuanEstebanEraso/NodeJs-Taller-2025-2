@@ -18,11 +18,12 @@ declare global {
   }
 }
 
-export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
+export const authenticateToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     let token = req.header('Authorization');
     if (!token) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
     }
     token = token.replace('Bearer ', '');
     const secret = process.env.JWT_SECRET || 'your-secret-key';
@@ -31,7 +32,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     // Verify user still exists in database
     const user = await UserModel.findById(decoded.userId);
     if (!user) {
-      return res.status(401).json({ message: 'User not found' });
+      res.status(401).json({ message: 'User not found' });
+      return;
     }
 
     // Add user info to req.body
@@ -42,15 +44,16 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     };
     next();
   } catch (error) {
-    return res.status(403).json({ message: 'Invalid or expired token' });
+    res.status(403).json({ message: 'Invalid or expired token' });
   }
 };
 
 export const authorizeRoles = (allowRoles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const user = req.body.user;
     if (user && !allowRoles.includes(user.role)) {
-      return res.status(403).json({ message: `Forbidden, you are a ${user.role} and this service is only available for ${allowRoles.join(', ')}` });
+      res.status(403).json({ message: `Forbidden, you are a ${user.role} and this service is only available for ${allowRoles.join(', ')}` });
+      return;
     }
     next();
   };

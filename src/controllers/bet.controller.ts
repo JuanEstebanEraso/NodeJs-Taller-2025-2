@@ -5,7 +5,7 @@ export class BetController {
   // Create a new bet
   async createBet(req: Request, res: Response) {
     try {
-      const userId = req.user?.id;
+      const userId = req.body.user?.userId;
       
       if (!userId) {
         return res.status(401).json({
@@ -64,7 +64,7 @@ export class BetController {
   // Get user's betting history
   async getUserBets(req: Request, res: Response) {
     try {
-      const userId = req.user?.id;
+      const userId = req.body.user?.userId;
       
       if (!userId) {
         return res.status(401).json({
@@ -91,7 +91,7 @@ export class BetController {
   // Get user's betting statistics
   async getUserBetStats(req: Request, res: Response) {
     try {
-      const userId = req.user?.id;
+      const userId = req.body.user?.userId;
       
       if (!userId) {
         return res.status(401).json({

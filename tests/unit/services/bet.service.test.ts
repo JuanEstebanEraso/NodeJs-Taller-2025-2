@@ -147,7 +147,8 @@ describe('BetService', () => {
     });
   });
 
-  describe('processBetsForEvent', () => {
+  describe('processBetsForEvent (instance method)', () => {
+    let betService: any;
     const eventId = 'event123';
     const mockEvent = {
       _id: eventId,
@@ -155,6 +156,12 @@ describe('BetService', () => {
       status: 'closed',
       final_result: 'home_win'
     };
+
+    beforeEach(() => {
+      // Create instance for testing instance methods
+      const { BetService } = require('../../../src/services/bet.service');
+      betService = new BetService();
+    });
 
     it('should process winning bets correctly', async () => {
       const mockBets = [
@@ -189,7 +196,7 @@ describe('BetService', () => {
       mockUserService.getUserById.mockResolvedValue(mockUser as any);
       mockUserService.updateBalance.mockResolvedValue(mockUser as any);
 
-      const result = await BetService.processBetsForEvent(eventId);
+      const result = await betService.processBetsForEvent(eventId);
 
       expect(mockEventService.getEventById).toHaveBeenCalledWith(eventId);
       expect(mockBetModel.find).toHaveBeenCalledWith({ 
@@ -215,7 +222,7 @@ describe('BetService', () => {
     it('should throw error if event not found', async () => {
       mockEventService.getEventById.mockResolvedValue(null);
 
-      await expect(BetService.processBetsForEvent(eventId)).rejects.toThrow('Error processing bets');
+      await expect(betService.processBetsForEvent(eventId)).rejects.toThrow('Error processing bets');
     });
 
     it('should throw error if event has no final result', async () => {
@@ -228,7 +235,7 @@ describe('BetService', () => {
 
       mockEventService.getEventById.mockResolvedValue(eventWithoutResult as any);
 
-      await expect(BetService.processBetsForEvent(eventId)).rejects.toThrow('Error processing bets');
+      await expect(betService.processBetsForEvent(eventId)).rejects.toThrow('Error processing bets');
     });
   });
 

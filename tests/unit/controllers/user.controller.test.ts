@@ -8,6 +8,11 @@ jest.mock('../../../src/services/user.service', () => ({
     getUserById: jest.fn(),
     updateBalance: jest.fn(),
     hasEnoughBalance: jest.fn()
+  },
+  userService: {
+    getAllUsers: jest.fn(),
+    updateUser: jest.fn(),
+    deleteUser: jest.fn()
   }
 }));
 
@@ -18,10 +23,11 @@ jest.mock('../../../src/services/auth.service', () => ({
   }
 }));
 
-import { UserService } from '../../../src/services/user.service';
+import { UserService, userService } from '../../../src/services/user.service';
 import { AuthService } from '../../../src/services/auth.service';
 
 const mockUserService = UserService as jest.Mocked<typeof UserService>;
+const mockUserServiceInstance = userService as jest.Mocked<typeof userService>;
 const mockAuthService = AuthService as jest.Mocked<typeof AuthService>;
 
 describe('UserController', () => {
@@ -33,7 +39,9 @@ describe('UserController', () => {
     jest.clearAllMocks();
     
     responseObject = {};
-    mockRequest = {};
+    mockRequest = {
+      body: {}
+    };
     mockResponse = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockImplementation((result) => {
@@ -188,7 +196,7 @@ describe('UserController', () => {
         balance: 10000
       };
 
-      mockRequest.user = { id: 'user123', username: 'testuser', role: 'player' };
+      mockRequest.body.user = { userId: 'user123', username: 'testuser', role: 'player' };
       mockUserService.getUserById.mockResolvedValue(mockUser as any);
 
       await userController.getProfile(mockRequest as Request, mockResponse as Response);
@@ -207,7 +215,7 @@ describe('UserController', () => {
     });
 
     it('should return 401 if user not authenticated', async () => {
-      mockRequest.user = undefined;
+      mockRequest.body.user = undefined;
 
       await userController.getProfile(mockRequest as Request, mockResponse as Response);
 
@@ -219,7 +227,7 @@ describe('UserController', () => {
     });
 
     it('should return 404 if user not found', async () => {
-      mockRequest.user = { id: 'user123', username: 'testuser', role: 'player' };
+      mockRequest.body.user = { userId: 'user123', username: 'testuser', role: 'player' };
       mockUserService.getUserById.mockResolvedValue(null);
 
       await userController.getProfile(mockRequest as Request, mockResponse as Response);
@@ -328,6 +336,151 @@ describe('UserController', () => {
       expect(responseObject).toEqual({
         success: false,
         message: 'Amount is required and must be a number'
+      });
+    });
+  });
+
+  describe('getAllUsers', () => {
+    it('should get all users successfully', async () => {
+      const mockUsers = [
+        { _id: 'user1', username: 'user1', role: 'player', balance: 10000 },
+        { _id: 'user2', username: 'user2', role: 'admin', balance: 5000 }
+      ];
+
+      mockUserServiceInstance.getAllUsers.mockResolvedValue(mockUsers as any);
+
+      await userController.getAllUsers(mockRequest as Request, mockResponse as Response);
+
+      expect(mockUserServiceInstance.getAllUsers).toHaveBeenCalled();
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(responseObject).toEqual({
+        success: true,
+        data: mockUsers,
+        count: 2
+      });
+    });
+
+    it('should handle error when getting all users', async () => {
+      const errorMessage = 'Database error';
+      mockUserServiceInstance.getAllUsers.mockRejectedValue(new Error(errorMessage));
+
+      await userController.getAllUsers(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(responseObject).toEqual({
+        success: false,
+        message: errorMessage
+      });
+    });
+  });
+
+  describe('updateUser', () => {
+    it('should update user successfully', async () => {
+      const userId = 'user123';
+      const updateData = { username: 'newusername' };
+      const updatedUser = {
+        _id: userId,
+        username: 'newusername',
+        role: 'player',
+        balance: 10000
+      };
+
+      mockRequest.params = { id: userId };
+      mockRequest.body = updateData;
+      mockUserServiceInstance.updateUser.mockResolvedValue(updatedUser as any);
+
+      await userController.updateUser(mockRequest as Request, mockResponse as Response);
+
+      expect(mockUserServiceInstance.updateUser).toHaveBeenCalledWith(userId, updateData);
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(responseObject).toEqual({
+        success: true,
+        data: updatedUser,
+        message: 'User updated successfully'
+      });
+    });
+
+    it('should return 404 if user not found for update', async () => {
+      const userId = 'nonexistentId';
+      const updateData = { username: 'newusername' };
+
+      mockRequest.params = { id: userId };
+      mockRequest.body = updateData;
+      mockUserServiceInstance.updateUser.mockResolvedValue(null);
+
+      await userController.updateUser(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+      expect(responseObject).toEqual({
+        success: false,
+        message: 'User not found'
+      });
+    });
+
+    it('should handle error when updating user', async () => {
+      const userId = 'user123';
+      const updateData = { username: 'newusername' };
+      const errorMessage = 'Update failed';
+
+      mockRequest.params = { id: userId };
+      mockRequest.body = updateData;
+      mockUserServiceInstance.updateUser.mockRejectedValue(new Error(errorMessage));
+
+      await userController.updateUser(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(responseObject).toEqual({
+        success: false,
+        message: errorMessage
+      });
+    });
+  });
+
+  describe('deleteUser', () => {
+    it('should delete user successfully', async () => {
+      const userId = 'user123';
+
+      mockRequest.params = { id: userId };
+      mockUserServiceInstance.deleteUser.mockResolvedValue(true);
+
+      await userController.deleteUser(mockRequest as Request, mockResponse as Response);
+
+      expect(mockUserServiceInstance.deleteUser).toHaveBeenCalledWith(userId);
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(responseObject).toEqual({
+        success: true,
+        message: 'User deleted successfully'
+      });
+    });
+
+    it('should return 404 if user not found for deletion', async () => {
+      const userId = 'nonexistentId';
+
+      mockRequest.params = { id: userId };
+      mockUserServiceInstance.deleteUser.mockResolvedValue(false);
+
+      await userController.deleteUser(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+      expect(responseObject).toEqual({
+        success: false,
+        message: 'User not found'
+      });
+    });
+
+    it('should handle error when deleting user', async () => {
+      const userId = 'user123';
+      const errorMessage = 'Delete failed';
+
+      mockRequest.params = { id: userId };
+      mockUserServiceInstance.deleteUser.mockRejectedValue(new Error(errorMessage));
+
+      await userController.deleteUser(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(responseObject).toEqual({
+        success: false,
+        message: errorMessage
       });
     });
   });

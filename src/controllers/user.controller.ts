@@ -66,7 +66,7 @@ export class UserController {
   // Get current user profile
   async getProfile(req: Request, res: Response) {
     try {
-      const userId = req.user?.id;
+      const userId = req.body.user?.userId;
       
       if (!userId) {
         return res.status(401).json({
