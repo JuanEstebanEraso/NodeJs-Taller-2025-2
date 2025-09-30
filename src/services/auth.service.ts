@@ -16,7 +16,7 @@ export class AuthService {
     return jwt.sign(
       { userId, username, role },
       secret,
-      { expiresIn: '1h' }
+      { expiresIn: '12h' }
     );
   }
 
