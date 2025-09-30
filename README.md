@@ -143,3 +143,124 @@ Descuenta Saldo → Apuesta Pendiente
 Admin → Cierra Evento → Define Resultado → Procesa Apuestas → 
 Actualiza Saldos → Apuestas Resueltas
 ```
+
+## 🚀 Deployment
+
+### Aplicación Desplegada
+
+La aplicación está desplegada en **Render** y disponible en:
+
+**🌐 URL de Producción:**
+```
+https://nodejs-taller-2025-2-0zx4.onrender.com
+```
+
+### Endpoints Disponibles
+
+#### **Health Check**
+```bash
+GET https://nodejs-taller-2025-2-0zx4.onrender.com/health
+```
+
+#### **API Endpoints**
+
+**Usuarios:**
+```bash
+POST https://nodejs-taller-2025-2-0zx4.onrender.com/api/users/register
+POST https://nodejs-taller-2025-2-0zx4.onrender.com/api/users/login
+GET  https://nodejs-taller-2025-2-0zx4.onrender.com/api/users/:id
+PUT  https://nodejs-taller-2025-2-0zx4.onrender.com/api/users/:id
+```
+
+**Eventos:**
+```bash
+GET  https://nodejs-taller-2025-2-0zx4.onrender.com/api/events
+POST https://nodejs-taller-2025-2-0zx4.onrender.com/api/events
+GET  https://nodejs-taller-2025-2-0zx4.onrender.com/api/events/:id
+PUT  https://nodejs-taller-2025-2-0zx4.onrender.com/api/events/:id/close
+```
+
+**Apuestas:**
+```bash
+GET  https://nodejs-taller-2025-2-0zx4.onrender.com/api/bets
+POST https://nodejs-taller-2025-2-0zx4.onrender.com/api/bets
+GET  https://nodejs-taller-2025-2-0zx4.onrender.com/api/bets/my-bets
+GET  https://nodejs-taller-2025-2-0zx4.onrender.com/api/bets/my-stats
+```
+
+### Configuración de Deployment
+
+#### **Render Configuration**
+- **Environment**: Node.js
+- **Build Command**: `npm install && npm run build`
+- **Start Command**: `node dist/index.js`
+- **Health Check**: `/health`
+
+#### **Variables de Entorno**
+```bash
+NODE_ENV=production
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database_name
+DB_NAME=your_database_name
+JWT_SECRET=your_super_secret_jwt_key_here
+```
+
+### Testing de la API Desplegada
+
+#### **1. Verificar que la API está funcionando:**
+```bash
+curl https://nodejs-taller-2025-2-0zx4.onrender.com/health
+```
+
+#### **2. Crear un usuario administrador:**
+```bash
+curl -X POST https://nodejs-taller-2025-2-0zx4.onrender.com/api/users/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin",
+    "password": "123456",
+    "role": "admin"
+  }'
+```
+
+#### **3. Crear un evento deportivo:**
+```bash
+curl -X POST https://nodejs-taller-2025-2-0zx4.onrender.com/api/events \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "name": "Real Madrid vs Barcelona",
+    "odds": {
+      "home_win": 2.5,
+      "draw": 3.0,
+      "away_win": 2.8
+    }
+  }'
+```
+
+### Postman Collection
+
+Para facilitar las pruebas, puedes importar la colección de Postman disponible en:
+```
+tests/postman/Tests Postman.postman_collection.json
+```
+
+**Configuración del Environment en Postman:**
+- **base_url**: `https://nodejs-taller-2025-2-0zx4.onrender.com`
+- **auth_token**: Se llena automáticamente al hacer login
+- **admin_id**: ID del usuario administrador
+- **player_id**: ID del usuario jugador
+- **event_id**: ID del evento creado
+- **bet_id**: ID de la apuesta realizada
+
+### Monitoreo y Logs
+
+- **Logs de Render**: Disponibles en el dashboard de Render
+- **Health Check**: Endpoint `/health` para verificar el estado
+- **MongoDB Atlas**: Base de datos en la nube con monitoreo incluido
+
+### Consideraciones de Producción
+
+- **Sleep Mode**: En el plan gratuito, la app se duerme después de 15 minutos de inactividad
+- **Cold Start**: La primera request puede tardar unos segundos
+- **Rate Limiting**: Implementado para prevenir abuso
+- **CORS**: Configurado para permitir requests desde dominios autorizados
