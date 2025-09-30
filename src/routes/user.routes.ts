@@ -1,20 +1,23 @@
 import { Router } from 'express';
 import { userController } from '../controllers/user.controller';
-import { authenticateToken, requireAdmin } from '../middleware/auth.middleware';
+import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware';
 
 const router = Router();
 
+// Public routes (no authentication required)
 router.post('/register', userController.register);
 router.post('/login', userController.login);
 
-router.get('/profile', authenticateToken, userController.getProfile);
-router.get('/:id', authenticateToken, userController.getUserById);
-router.put('/:id/balance', authenticateToken, userController.updateBalance);
-router.get('/:id/balance/check', authenticateToken, userController.checkBalance);
+// Protected routes for authenticated users
+router.get('/profile', authenticateToken, authorizeRoles(['player', 'admin']), userController.getProfile);
+router.get('/:id', authenticateToken, authorizeRoles(['player', 'admin']), userController.getUserById);
+router.put('/:id/balance', authenticateToken, authorizeRoles(['player', 'admin']), userController.updateBalance);
+router.get('/:id/balance/check', authenticateToken, authorizeRoles(['player', 'admin']), userController.checkBalance);
 
-router.get('/', authenticateToken, requireAdmin, userController.getAllUsers);
-router.post('/', authenticateToken, requireAdmin, userController.createUser);
-router.put('/:id', authenticateToken, requireAdmin, userController.updateUser);
-router.delete('/:id', authenticateToken, requireAdmin, userController.deleteUser);
+// Admin only routes
+router.get('/', authenticateToken, authorizeRoles(['admin']), userController.getAllUsers);
+router.post('/', authenticateToken, authorizeRoles(['admin']), userController.createUser);
+router.put('/:id', authenticateToken, authorizeRoles(['admin']), userController.updateUser);
+router.delete('/:id', authenticateToken, authorizeRoles(['admin']), userController.deleteUser);
 
 export default router;
