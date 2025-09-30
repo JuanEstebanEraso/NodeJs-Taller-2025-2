@@ -61,7 +61,7 @@ describe('AuthService', () => {
       expect(mockJwt.sign).toHaveBeenCalledWith(
         { userId: 'user123', username: 'testuser', role: 'player' },
         'test-secret-key',
-        { expiresIn: '1h' }
+        { expiresIn: '2000h' }
       );
       expect(token).toBe(mockToken);
     });
