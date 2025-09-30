@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { EventService } from './event.service';
 
 export class BetService {
-  // Creates a bet validating balance and event status
+  // Basic operations (static methods)
   static async createBet(betData: BetInput) {
     try {
       const hasBalance = await UserService.hasEnoughBalance(betData.user_id, betData.amount);
@@ -21,7 +21,7 @@ export class BetService {
         throw new Error('User not found');
       }
 
-      // Deducts money from user's balance
+      // Deduct money from user's balance
       await UserService.updateBalance(betData.user_id, user.balance - betData.amount);
 
       const bet = new BetModel(betData);
@@ -31,7 +31,6 @@ export class BetService {
     }
   }
 
-  // Gets user's betting history
   static async getUserBets(userId: string) {
     try {
       return await BetModel.find({ user_id: userId })
@@ -42,8 +41,26 @@ export class BetService {
     }
   }
 
-  // Processes all bets when an event is closed
-  static async processBetsForEvent(eventId: string) {
+  static async getUserBetStats(userId: string) {
+    try {
+      const bets = await BetModel.find({ user_id: userId });
+      
+      const stats = {
+        total: bets.length,
+        won: bets.filter(bet => bet.status === 'won').length,
+        lost: bets.filter(bet => bet.status === 'lost').length,
+        pending: bets.filter(bet => bet.status === 'pending').length,
+        totalWinnings: bets.reduce((sum, bet) => sum + bet.winnings, 0)
+      };
+
+      return stats;
+    } catch (error) {
+      throw new Error('Error fetching bet statistics');
+    }
+  }
+
+  // Administrative operations (instance methods)
+  async processBetsForEvent(eventId: string) {
     try {
       const event = await EventService.getEventById(eventId);
       if (!event || !event.final_result) {
@@ -57,7 +74,7 @@ export class BetService {
 
       for (const bet of bets) {
         if (bet.chosen_option === event.final_result) {
-          // Winning bet - calculates winnings and updates balance
+          // Winning bet - calculate winnings and update balance
           const winnings = bet.amount * bet.odds;
           await BetModel.findByIdAndUpdate(bet._id, {
             status: 'won' as BetStatus,
@@ -83,22 +100,48 @@ export class BetService {
     }
   }
 
-  // User betting statistics
-  static async getUserBetStats(userId: string) {
+  async getAllBets() {
     try {
-      const bets = await BetModel.find({ user_id: userId });
-      
-      const stats = {
-        total: bets.length,
-        won: bets.filter(bet => bet.status === 'won').length,
-        lost: bets.filter(bet => bet.status === 'lost').length,
-        pending: bets.filter(bet => bet.status === 'pending').length,
-        totalWinnings: bets.reduce((sum, bet) => sum + bet.winnings, 0)
-      };
-
-      return stats;
+      return await BetModel.find()
+        .populate('user_id', 'username')
+        .populate('event_id', 'name odds final_result')
+        .sort({ createdAt: -1 });
     } catch (error) {
-      throw new Error('Error fetching bet statistics');
+      throw new Error('Error fetching all bets');
+    }
+  }
+
+  async getEventBets(eventId: string) {
+    try {
+      return await BetModel.find({ event_id: eventId })
+        .populate('user_id', 'username')
+        .populate('event_id', 'name odds final_result')
+        .sort({ createdAt: -1 });
+    } catch (error) {
+      throw new Error('Error fetching event bets');
+    }
+  }
+
+  async updateBetStatus(betId: string, status: BetStatus, winnings: number = 0) {
+    try {
+      return await BetModel.findByIdAndUpdate(
+        betId,
+        { status, winnings },
+        { new: true }
+      );
+    } catch (error) {
+      throw new Error('Error updating bet status');
+    }
+  }
+
+  async deleteBet(betId: string) {
+    try {
+      const result = await BetModel.findByIdAndDelete(betId);
+      return result !== null;
+    } catch (error) {
+      throw new Error('Error deleting bet');
     }
   }
 }
+
+export const betService = new BetService();

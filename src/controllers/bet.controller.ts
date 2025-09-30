@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { BetService } from '../services/bet.service';
+import { BetService, betService } from '../services/bet.service';
 
 export class BetController {
   // Create a new bet
-  static async createBet(req: Request, res: Response) {
+  async createBet(req: Request, res: Response) {
     try {
       const userId = req.user?.id;
       
@@ -62,7 +62,7 @@ export class BetController {
   }
 
   // Get user's betting history
-  static async getUserBets(req: Request, res: Response) {
+  async getUserBets(req: Request, res: Response) {
     try {
       const userId = req.user?.id;
       
@@ -88,27 +88,8 @@ export class BetController {
     }
   }
 
-  // Process bets for a closed event
-  static async processBetsForEvent(req: Request, res: Response) {
-    try {
-      const { eventId } = req.params;
-      const result = await BetService.processBetsForEvent(eventId);
-      
-      return res.status(200).json({
-        success: true,
-        data: result,
-        message: `Processed ${result.processed} bets successfully`
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: error instanceof Error ? error.message : 'Error processing bets'
-      });
-    }
-  }
-
   // Get user's betting statistics
-  static async getUserBetStats(req: Request, res: Response) {
+  async getUserBetStats(req: Request, res: Response) {
     try {
       const userId = req.user?.id;
       
@@ -133,16 +114,35 @@ export class BetController {
     }
   }
 
-  // Get all bets for an event (admin only)
-  static async getEventBets(req: Request, res: Response) {
+  // Process bets for a closed event (admin only)
+  async processBetsForEvent(req: Request, res: Response) {
     try {
       const { eventId } = req.params;
-      // This would need to be implemented in BetService
-      // For now, return a placeholder response
+      const result = await betService.processBetsForEvent(eventId);
+      
       return res.status(200).json({
         success: true,
-        data: [],
-        message: 'Event bets endpoint - to be implemented'
+        data: result,
+        message: `Processed ${result.processed} bets successfully`
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error instanceof Error ? error.message : 'Error processing bets'
+      });
+    }
+  }
+
+  // Get all bets for an event (admin only)
+  async getEventBets(req: Request, res: Response) {
+    try {
+      const { eventId } = req.params;
+      const bets = await betService.getEventBets(eventId);
+      
+      return res.status(200).json({
+        success: true,
+        data: bets,
+        count: bets.length
       });
     } catch (error) {
       return res.status(500).json({
@@ -151,4 +151,78 @@ export class BetController {
       });
     }
   }
+
+  // Get all bets (admin only)
+  async getAllBets(req: Request, res: Response) {
+    try {
+      const bets = await betService.getAllBets();
+      
+      return res.status(200).json({
+        success: true,
+        data: bets,
+        count: bets.length
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error instanceof Error ? error.message : 'Error fetching all bets'
+      });
+    }
+  }
+
+  // Update bet status (admin only)
+  async updateBetStatus(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { status, winnings } = req.body;
+
+      const bet = await betService.updateBetStatus(id, status, winnings);
+      
+      if (!bet) {
+        return res.status(404).json({
+          success: false,
+          message: 'Bet not found'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: bet,
+        message: 'Bet status updated successfully'
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error instanceof Error ? error.message : 'Error updating bet status'
+      });
+    }
+  }
+
+  // Delete bet (admin only)
+  async deleteBet(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const deleted = await betService.deleteBet(id);
+      
+      if (!deleted) {
+        return res.status(404).json({
+          success: false,
+          message: 'Bet not found'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Bet deleted successfully'
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error instanceof Error ? error.message : 'Error deleting bet'
+      });
+    }
+  }
 }
+
+export const betController = new BetController();

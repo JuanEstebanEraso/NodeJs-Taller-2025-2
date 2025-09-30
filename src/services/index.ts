@@ -1,4 +1,4 @@
-export { UserService } from './user.service';
-export { EventService } from './event.service';
-export { BetService } from './bet.service';
+export { UserService, userService } from './user.service';
+export { EventService, eventService } from './event.service';
+export { BetService, betService } from './bet.service';
 export { AuthService } from './auth.service';
