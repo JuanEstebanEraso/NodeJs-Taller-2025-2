@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { UserController } from '../../../src/controllers/user.controller';
+import { userController } from '../../../src/controllers/user.controller';
 
 // Mock the services
 jest.mock('../../../src/services/user.service', () => ({
@@ -63,7 +63,7 @@ describe('UserController', () => {
       mockRequest.body = registerData;
       mockAuthService.register.mockResolvedValue(authResponse);
 
-      await UserController.register(mockRequest as Request, mockResponse as Response);
+      await userController.register(mockRequest as Request, mockResponse as Response);
 
       expect(mockAuthService.register).toHaveBeenCalledWith(registerData);
       expect(mockResponse.status).toHaveBeenCalledWith(201);
@@ -77,7 +77,7 @@ describe('UserController', () => {
     it('should return 400 if username is missing', async () => {
       mockRequest.body = { password: 'testpassword' };
 
-      await UserController.register(mockRequest as Request, mockResponse as Response);
+      await userController.register(mockRequest as Request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(responseObject).toEqual({
@@ -89,7 +89,7 @@ describe('UserController', () => {
     it('should return 400 if password is missing', async () => {
       mockRequest.body = { username: 'testuser' };
 
-      await UserController.register(mockRequest as Request, mockResponse as Response);
+      await userController.register(mockRequest as Request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(responseObject).toEqual({
@@ -107,7 +107,7 @@ describe('UserController', () => {
       mockRequest.body = registerData;
       mockAuthService.register.mockRejectedValue(new Error('Username already exists'));
 
-      await UserController.register(mockRequest as Request, mockResponse as Response);
+      await userController.register(mockRequest as Request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(responseObject).toEqual({
@@ -137,7 +137,7 @@ describe('UserController', () => {
       mockRequest.body = loginData;
       mockAuthService.login.mockResolvedValue(authResponse);
 
-      await UserController.login(mockRequest as Request, mockResponse as Response);
+      await userController.login(mockRequest as Request, mockResponse as Response);
 
       expect(mockAuthService.login).toHaveBeenCalledWith(loginData);
       expect(mockResponse.status).toHaveBeenCalledWith(200);
@@ -151,7 +151,7 @@ describe('UserController', () => {
     it('should return 400 if credentials are missing', async () => {
       mockRequest.body = { username: 'testuser' };
 
-      await UserController.login(mockRequest as Request, mockResponse as Response);
+      await userController.login(mockRequest as Request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(responseObject).toEqual({
@@ -169,7 +169,7 @@ describe('UserController', () => {
       mockRequest.body = loginData;
       mockAuthService.login.mockRejectedValue(new Error('Invalid credentials'));
 
-      await UserController.login(mockRequest as Request, mockResponse as Response);
+      await userController.login(mockRequest as Request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(401);
       expect(responseObject).toEqual({
@@ -191,7 +191,7 @@ describe('UserController', () => {
       mockRequest.user = { id: 'user123', username: 'testuser', role: 'player' };
       mockUserService.getUserById.mockResolvedValue(mockUser as any);
 
-      await UserController.getProfile(mockRequest as Request, mockResponse as Response);
+      await userController.getProfile(mockRequest as Request, mockResponse as Response);
 
       expect(mockUserService.getUserById).toHaveBeenCalledWith('user123');
       expect(mockResponse.status).toHaveBeenCalledWith(200);
@@ -209,7 +209,7 @@ describe('UserController', () => {
     it('should return 401 if user not authenticated', async () => {
       mockRequest.user = undefined;
 
-      await UserController.getProfile(mockRequest as Request, mockResponse as Response);
+      await userController.getProfile(mockRequest as Request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(401);
       expect(responseObject).toEqual({
@@ -222,7 +222,7 @@ describe('UserController', () => {
       mockRequest.user = { id: 'user123', username: 'testuser', role: 'player' };
       mockUserService.getUserById.mockResolvedValue(null);
 
-      await UserController.getProfile(mockRequest as Request, mockResponse as Response);
+      await userController.getProfile(mockRequest as Request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(404);
       expect(responseObject).toEqual({
@@ -247,7 +247,7 @@ describe('UserController', () => {
       mockRequest.body = { balance: newBalance };
       mockUserService.updateBalance.mockResolvedValue(updatedUser as any);
 
-      await UserController.updateBalance(mockRequest as Request, mockResponse as Response);
+      await userController.updateBalance(mockRequest as Request, mockResponse as Response);
 
       expect(mockUserService.updateBalance).toHaveBeenCalledWith(userId, newBalance);
       expect(mockResponse.status).toHaveBeenCalledWith(200);
@@ -262,7 +262,7 @@ describe('UserController', () => {
       mockRequest.params = { id: 'user123' };
       mockRequest.body = { balance: -100 };
 
-      await UserController.updateBalance(mockRequest as Request, mockResponse as Response);
+      await userController.updateBalance(mockRequest as Request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(responseObject).toEqual({
@@ -276,7 +276,7 @@ describe('UserController', () => {
       mockRequest.body = { balance: 5000 };
       mockUserService.updateBalance.mockResolvedValue(null);
 
-      await UserController.updateBalance(mockRequest as Request, mockResponse as Response);
+      await userController.updateBalance(mockRequest as Request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(404);
       expect(responseObject).toEqual({
@@ -295,7 +295,7 @@ describe('UserController', () => {
       mockRequest.query = { amount };
       mockUserService.hasEnoughBalance.mockResolvedValue(true);
 
-      await UserController.checkBalance(mockRequest as Request, mockResponse as Response);
+      await userController.checkBalance(mockRequest as Request, mockResponse as Response);
 
       expect(mockUserService.hasEnoughBalance).toHaveBeenCalledWith(userId, 1000);
       expect(mockResponse.status).toHaveBeenCalledWith(200);
@@ -309,7 +309,7 @@ describe('UserController', () => {
       mockRequest.params = { id: 'user123' };
       mockRequest.query = {};
 
-      await UserController.checkBalance(mockRequest as Request, mockResponse as Response);
+      await userController.checkBalance(mockRequest as Request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(responseObject).toEqual({
@@ -322,7 +322,7 @@ describe('UserController', () => {
       mockRequest.params = { id: 'user123' };
       mockRequest.query = { amount: 'invalid' };
 
-      await UserController.checkBalance(mockRequest as Request, mockResponse as Response);
+      await userController.checkBalance(mockRequest as Request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(responseObject).toEqual({

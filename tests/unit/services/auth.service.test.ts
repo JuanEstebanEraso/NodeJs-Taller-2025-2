@@ -22,9 +22,29 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { UserModel } from '../../../src/models/User';
 
-const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
-const mockJwt = jwt as jest.Mocked<typeof jwt>;
-const mockUserModel = UserModel as jest.Mocked<typeof UserModel>;
+// Type the mocks properly
+const mockBcrypt = {
+  hash: jest.fn(),
+  compare: jest.fn()
+};
+
+const mockJwt = {
+  sign: jest.fn(),
+  verify: jest.fn()
+};
+
+const mockUserModel = {
+  findOne: jest.fn(),
+  create: jest.fn()
+};
+
+// Replace the actual modules with mocks
+(bcrypt as any).hash = mockBcrypt.hash;
+(bcrypt as any).compare = mockBcrypt.compare;
+(jwt as any).sign = mockJwt.sign;
+(jwt as any).verify = mockJwt.verify;
+(UserModel as any).findOne = mockUserModel.findOne;
+(UserModel as any).create = mockUserModel.create;
 
 describe('AuthService', () => {
   beforeEach(() => {

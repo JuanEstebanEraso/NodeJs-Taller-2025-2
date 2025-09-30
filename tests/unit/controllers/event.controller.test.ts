@@ -1,9 +1,18 @@
 import { Request, Response } from 'express';
 import { EventController } from '../../../src/controllers/event.controller';
-import { EventService } from '../../../src/services/event.service';
 
 // Mock the service
-jest.mock('../../../src/services/event.service');
+jest.mock('../../../src/services/event.service', () => ({
+  EventService: {
+    createEvent: jest.fn(),
+    getOpenEvents: jest.fn(),
+    getEventById: jest.fn(),
+    closeEvent: jest.fn(),
+    isEventOpen: jest.fn()
+  }
+}));
+
+import { EventService } from '../../../src/services/event.service';
 
 const mockEventService = EventService as jest.Mocked<typeof EventService>;
 

@@ -1,9 +1,17 @@
 import { Request, Response } from 'express';
 import { BetController } from '../../../src/controllers/bet.controller';
-import { BetService } from '../../../src/services/bet.service';
 
 // Mock the service
-jest.mock('../../../src/services/bet.service');
+jest.mock('../../../src/services/bet.service', () => ({
+  BetService: {
+    createBet: jest.fn(),
+    getUserBets: jest.fn(),
+    processBetsForEvent: jest.fn(),
+    getUserBetStats: jest.fn()
+  }
+}));
+
+import { BetService } from '../../../src/services/bet.service';
 
 const mockBetService = BetService as jest.Mocked<typeof BetService>;
 

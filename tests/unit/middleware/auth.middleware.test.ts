@@ -20,8 +20,18 @@ jest.mock('../../../src/models/User', () => ({
 import jwt from 'jsonwebtoken';
 import { UserModel } from '../../../src/models/User';
 
-const mockJwt = jwt as jest.Mocked<typeof jwt>;
-const mockUserModel = UserModel as jest.Mocked<typeof UserModel>;
+// Type the mocks properly
+const mockJwt = {
+  verify: jest.fn()
+};
+
+const mockUserModel = {
+  findById: jest.fn()
+};
+
+// Replace the actual modules with mocks
+(jwt as any).verify = mockJwt.verify;
+(UserModel as any).findById = mockUserModel.findById;
 
 describe('Auth Middleware', () => {
   let mockRequest: Partial<Request>;

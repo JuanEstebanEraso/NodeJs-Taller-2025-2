@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { UserService } from '../services/user.service';
+import { UserService, userService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
 import { 
   RegisterRequest, 
@@ -10,7 +10,7 @@ import {
 
 export class UserController {
   // Register new user
-  static async register(req: Request, res: Response) {
+  async register(req: Request, res: Response) {
     try {
       const registerData: RegisterRequest = req.body;
       
@@ -37,7 +37,7 @@ export class UserController {
   }
 
   // Login user
-  static async login(req: Request, res: Response) {
+  async login(req: Request, res: Response) {
     try {
       const loginData: LoginRequest = req.body;
       
@@ -64,7 +64,7 @@ export class UserController {
   }
 
   // Get current user profile
-  static async getProfile(req: Request, res: Response) {
+  async getProfile(req: Request, res: Response) {
     try {
       const userId = req.user?.id;
       
@@ -102,7 +102,7 @@ export class UserController {
   }
 
   // Create a new user (admin only)
-  static async createUser(req: Request, res: Response) {
+  async createUser(req: Request, res: Response) {
     try {
       const { username, password, balance, role } = req.body;
       
@@ -128,7 +128,7 @@ export class UserController {
   }
 
   // Get user by ID
-  static async getUserById(req: Request, res: Response) {
+  async getUserById(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const user = await UserService.getUserById(id);
@@ -153,7 +153,7 @@ export class UserController {
   }
 
   // Update user balance
-  static async updateBalance(req: Request, res: Response) {
+  async updateBalance(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const { balance } = req.body;
@@ -188,7 +188,7 @@ export class UserController {
   }
 
   // Check if user has enough balance
-  static async checkBalance(req: Request, res: Response) {
+  async checkBalance(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const { amount } = req.query;
@@ -213,4 +213,79 @@ export class UserController {
       });
     }
   }
+
+  //admin only
+  async getAllUsers(req: Request, res: Response) {
+    try {
+      const users = await userService.getAllUsers();
+      
+      return res.status(200).json({
+        success: true,
+        data: users,
+        count: users.length
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error instanceof Error ? error.message : 'Error fetching users'
+      });
+    }
+  }
+
+  //admin only
+  async updateUser(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+
+      const user = await userService.updateUser(id, updateData);
+      
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: user,
+        message: 'User updated successfully'
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error instanceof Error ? error.message : 'Error updating user'
+      });
+    }
+  }
+
+  // admin only
+  async deleteUser(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const deleted = await userService.deleteUser(id);
+      
+      if (!deleted) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'User deleted successfully'
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error instanceof Error ? error.message : 'Error deleting user'
+      });
+    }
+  }
 }
+
+
+export const userController = new UserController();
